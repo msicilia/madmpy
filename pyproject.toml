@@ -1,0 +1,13 @@
+[project]
+name = "madmpy"
+version = "0.1.0"
+description = "Validating RDA DMP Common Standard"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.10.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
