@@ -33,7 +33,7 @@ def extract_identifier(url, id_type):
     match = re.search(patterns[id_type], url, re.IGNORECASE)
     return match.group(0) if match else None
 
-def validate_dmp_id(value):
+def validate_id(value):
     """
     Validates an identifier.
 
@@ -482,7 +482,7 @@ class Dataset(BaseModel):
         type (str): Type of dataset according to DataCite or COAR. Otherwise use the common name for the type, e.g. raw data, software, survey, etc.
     """
     data_quality_assurance: Optional[list[str]] = None
-    dataset_id: DatasetIdentifier
+    dataset_id: Annotated[DatasetIdentifier, AfterValidator(validate_id)]
     description: Optional[str] = None
     distribution: Optional[list[Distribution]] = None
     issued: Optional[datetime] = None
@@ -581,7 +581,7 @@ class DMP(BaseModel):
     created: datetime
     dataset: list[Dataset]    
     description: Optional[str] = None
-    dmp_id: Annotated[DMPIdentifier, AfterValidator(validate_dmp_id)] # \
+    dmp_id: Annotated[DMPIdentifier, AfterValidator(validate_id)] # \
     #    = Field(default = DMPIdentifier(identifier="change-me", type="other"))
     ethical_issues_description: Optional[str] = None
     ethical_issues_exist: Optional[YesNoUnknown] = None

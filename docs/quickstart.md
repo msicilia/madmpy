@@ -69,6 +69,10 @@ Besides validating DMPs under the RDA-DMP Common Standard, `madmpy` allows creat
 Following the [API Reference](dmp.md), you can create objects corresponding to the DMP. Below is an example of a `.py` snippet to generate a DMP including only the required components.
 
 ```python
+import madmpy
+
+dmp_module = madmpy.load()
+
 title = "DMP Title"
 language = dmp_module.LanguageEnum.eng
 dataset = dmp_module.Dataset(
