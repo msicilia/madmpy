@@ -273,8 +273,8 @@ class grant_id_type(str, Enum):
     Enum representing the allowed identifier types for grants.
     
     Args:
-    - URL: A direct URL to the grant.
-    - OTHER: Other unspecified identifier type.
+        URL: A direct URL to the grant.
+        OTHER: Other unspecified identifier type.
     """
     URL = "url"
     OTHER = "other"
