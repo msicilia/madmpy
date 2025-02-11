@@ -1,0 +1,44 @@
+site_name: madmpy
+nav:
+  - "USER DOCUMENTATION":
+    - Intro: index.md
+    - Quickstart: quickstart.md
+    - Release Notes: release_notes.md
+  - "API REFERENCE":  
+    - v1.1: dmp.md
+    - v1.0: dmp1_0.md
+    
+theme:
+  name: readthedocs
+  font:
+    - code:
+      - font-size: 25px
+
+  features:
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/custom.css
+
+plugins:
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            show_source: true
+            heading_level: 5
+            show_root_heading: false
+            show_root_toc_entry: false
+
+copyright: Copyright &copy; 2025

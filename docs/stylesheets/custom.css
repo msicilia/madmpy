@@ -1,0 +1,13 @@
+/* .rst-content .admonition p {
+    font-size: 14px;    
+} */
+
+.rst-content .admonition code  {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.rst-content pre code {
+    font-size: 13px;
+    line-height: 1.5;
+}

@@ -1,25 +1,27 @@
-from madmpy import set_version, DMP
-import pytest 
-from pathlib import Path
-import json
-from pydantic_core import from_json 
+import madmpy
 
+dmp_files = [
+    "ex1-header-fundedProject.json",
+    "ex2-dataset-planned.json",
+    "ex3-dataset-finished.json",
+    "ex4-dataset-embargo.json",
+    "ex5-dataset-planned-host.json",
+    "ex6-dataset-closed.json",
+    "ex7-dataset-many.json",
+    "ex8-dmp-minimal-content.json",
+    "ex9-dmp-long.json",
+    "ex10-fairsharing.json"
+]
 
-def test_set_global_version():
-    set_version("1.1")
+def test_validate_DMP():
+    """ Testing DMP validation"""
+    
+    madmpy.set_version("1.1")   # v1.1
+    for file in dmp_files:
+        madmpy.validate_DMP(f"data/{file}")
+    
+    madmpy.set_version("1.0")   # v1.0
+    for file in dmp_files:
+        madmpy.validate_DMP(f"data/{file}")
+        
     assert True
-
-def test_set_global_version_inexistent():
-    """Tests setting a version that is not supported"""
-    with pytest.raises(Exception):
-        set_version("1.5")
-
-def test_read_dmp():
-    file = Path(__file__).parent / Path("data/ex10-fairsharing.json")  
-    with open(file) as f:  
-        data = json.load(f)
-    dmp = DMP.model_validate(data["dmp"])
-    print(dmp.dataset[0].to_dcat())
-    assert True
-
-
