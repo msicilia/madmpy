@@ -1,6 +1,6 @@
 # Quickstart
 
-Welcome to `madmpy`, a Python library designed to help manage and validate Data Management Plans (DMPs). This guide will walk you through installing `madmpy`, setting up your first project, and running basic operations.
+Welcome to `madmpy`, a Python library designed to help create and validate Data Management Plans (DMPs). This guide will walk you through installing `madmpy`, setting up your first project, and running basic operations.
 
 ## Installation
 
@@ -43,7 +43,7 @@ Loaded madmpy with RDA-DMP specification v1.1
 
 !!! note
     `madmpy` by default uses the latest version of the [RDA-DMP Common Standard](https://github.com/RDA-DMP-Common/RDA-DMP-Common-Standard/releases), currently `1.1`. To use an older version, specify it explicitly using `set_version(VERSION)`.
-    
+
     ```python
     >>> import madmpy
     >>> VERSION = "1.0"
