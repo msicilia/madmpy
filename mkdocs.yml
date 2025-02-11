@@ -19,6 +19,10 @@ theme:
 
 markdown_extensions:
   - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      pygments_lang_class: true
+
 
 extra_css:
   - stylesheets/custom.css

@@ -1,3 +1,4 @@
 mkdocs
 mkdocstrings
 mkdocstrings-python
+pymdown-extensions

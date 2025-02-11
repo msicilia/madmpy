@@ -35,15 +35,16 @@ import madmpy
 
 To work with DMPs, load the module after importing `madmpy`:
 
-``` python
+```python
 >>> import madmpy
 >>> dmp_module = madmpy.load()
 Loaded madmpy with RDA-DMP specification v1.1
 ```
+
 !!! note
     `madmpy` by default uses the latest version of the [RDA-DMP Common Standard](https://github.com/RDA-DMP-Common/RDA-DMP-Common-Standard/releases), currently `1.1`. To use an older version, specify it explicitly using `set_version(VERSION)`.
-
-    ``` python
+    
+    ```python
     >>> import madmpy
     >>> VERSION = "1.0"
     >>> madmpy.set_version(VERSION)

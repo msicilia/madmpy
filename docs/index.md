@@ -9,5 +9,5 @@ DMPs are commonly used in research institutions, data management workflows, and 
 To begin using `madmpy`, check out the [Installation](quickstart.md#installation) guide to see how to create and validate your first DMP.
 
 - Ready to code? → [Quickstart](quickstart.md)
-- Found a bug? → Contact??
+- Found a bug or want to contact? → [alberto.ballesterosr@uah.es](mailto:alberto.ballesterosr@uah.es?subject=madmpy), [msicilia@uah.es](mailto:msicilia@uah.es?subject=madmpy)
 - Read the source? → [Github](https://github.com/msicilia/madmpy)
