@@ -1,7 +1,12 @@
 [project]
 name = "madmpy"
-version = "0.1.1"
-description = "Validating RDA DMP Common Standard"
+version = "0.1.0"
+authors = [
+  { name="Alberto Ballesteros-Rodríguez", email="alberto.ballesterosr@uah.es" },
+  { name="Miguel-Ángel Sicilia", email="msicilia@uah.es" },
+]
+description = "Creating and validating DMPs following the RDA Common Standard"
+license = "MIT"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -11,3 +16,8 @@ dependencies = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[project.urls]
+Documentation = "https://madmpy.readthedocs.io/en/latest/"
+Repository = "https://github.com/msicilia/madmpy"
+Issues = "https://github.com/msicilia/madmpy/issues"
