@@ -575,7 +575,7 @@ class DMP(BaseModel):
         
     title: str
     contact: Contact 
-    contributor: list[Contributor] = None
+    contributor: Optional[list[Contributor]] = None
     cost: Optional[list[Cost]] = None
     created: datetime
     dataset: list[Dataset]
@@ -583,7 +583,7 @@ class DMP(BaseModel):
     dmp_id: Annotated[DMPIdentifier, AfterValidator(validate_id)] # \
     #     = Field(default = DMPIdentifier(identifier="change-me", type="other"))
     ethical_issues_description: Optional[str] = None
-    ethical_issues_exist: Optional[YesNoUnknown] = None
+    ethical_issues_exist: YesNoUnknown = None
     ethical_issues_report: Optional[AnyUrl] = None
     language: LanguageEnum
     modified: datetime

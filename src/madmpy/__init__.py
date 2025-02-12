@@ -65,3 +65,16 @@ def validate_DMP(dmp_path):
 
     except ValidationError as e:
         print("ERROR!", e.errors())
+
+def export_DMP_json(dmp_instance, indent=4):
+    """
+    Exports a DMP instance as a JSON string.
+
+    Args:
+        dmp_instance: A valid DMP object from the loaded module.
+        indent: The indentation level for JSON formatting (default is 4).
+
+    Returns:
+        str: JSON string with the structure {"dmp": <DMP content>}
+    """
+    return json.loads(f'{{"dmp": {dmp_instance.model_dump_json(indent=indent)} }}')

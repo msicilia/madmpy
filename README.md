@@ -98,43 +98,65 @@ DMP = dmp_module.DMP(
 To generate a JSON representation of the DMP object:
 
 ```python
-print(DMP.model_dump_json(indent=4))
+madmpy.export_DMP_json(DMP)
 ```
 
 This will output a structured JSON-formatted representation of the DMP:
 
 ```json
 {
-    "title": "DMP Title",
-    "contact": {
-        "name": "name",
-        "contact_id": {
-            "identifier": "https://orcid.org/0000-0001-2345-6789",
-            "type": "orcid"
-        },
-        "mbox": "name@email.com"
-    },
-    "dataset": [
-        {
-            "dataset_id": {
-                "identifier": "https://doi.org/10.25504/FAIRsharing.r3vtvx",
-                "type": "doi"
+    "dmp": {
+        "title": "DMP Title",
+        "contact": {
+            "name": "name",
+            "contact_id": {
+                "identifier": "https://orcid.org/0000-0001-2345-6789",
+                "type": "orcid"
             },
-            "description": "Dataset description example",
-            "personal_data": "no",
-            "sensitive_data": "no",
-            "technical_resource": [
-                {
-                    "name": "Technical resource"
-                }
-            ],
-            "title": "Dataset title"
-        }
-    ],
-    "language": "eng",
-    "created": "2025-02-10T13:49:29",
-    "modified": "2025-02-10T13:49:29",
-    "ethical_issues_exist": "no"
+            "mbox": "name@email.com"
+        },
+        "contributor": null,
+        "cost": null,
+        "created": "2025-02-12T08:15:03",
+        "dataset": [
+            {
+                "data_quality_assurance": null,
+                "dataset_id": {
+                    "identifier": "https://doi.org/10.25504/FAIRsharing.r3vtvx",
+                    "type": "doi"
+                },
+                "description": "Dataset description example",
+                "distribution": null,
+                "issued": null,
+                "keyword": null,
+                "language": null,
+                "metadata": null,
+                "personal_data": "no",
+                "preservation_statement": null,
+                "security_and_privacy": null,
+                "sensitive_data": "no",
+                "technical_resource": [
+                    {
+                        "description": null,
+                        "name": "Technical resource"
+                    }
+                ],
+                "title": "Dataset title",
+                "type": null
+            }
+        ],
+        "description": null,
+        "dmp_id": {
+            "identifier": "https://n2t.net/ark:/123456/xyz123?info",
+            "type": "ark"
+        },
+        "ethical_issues_description": null,
+        "ethical_issues_exist": "no",
+        "ethical_issues_report": null,
+        "language": "eng",
+        "modified": "2025-02-12T08:15:03",
+        "project": null
+    }
 }
 ```
 
@@ -150,8 +172,8 @@ Contributions are welcome! If you would like to improve `madmpy`, follow these s
 ### Issues & Feature Requests
 - If you find a bug or have a feature request, [open an issue](https://github.com/msicilia/madmpy/issues).
 
-### License
+## License
 This project is licensed under the **MIT License**.
 
 ## 📖 Documentation
-For a detailed API reference and more examples, check out the [official documentation](https://madmpy.readthedocs.com/).
+For a detailed API reference and more examples, check out the [official documentation](https://madmpy.readthedocs.io/).

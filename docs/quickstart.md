@@ -113,63 +113,67 @@ DMP = dmp_module.DMP(
 )
 ```
 
-This will generate a `DMP` object based on Pydantic, which internally handles validations and constraints of the standard. To convert this object to JSON, use Pydantic's [`model_dump_json()`](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_dump_json) method:
-
+This will generate a `DMP` object based on [Pydantic](https://docs.pydantic.dev/latest/), which internally handles validations and constraints of the standard. To convert this object to JSON, use the `export_DMP_json` method as shown:
 ```python
-print(DMP.model_dump_json(indent=4))
+madmpy.export_DMP_json(DMP)
 ```
 
 This will generate a JSON-formatted representation that can be stored or used for validation.
 
 ``` json
 {
-    "title": "DMP Title",
-    "contact": {
-        "name": "name",
-        "contact_id": {
-            "identifier": "https://orcid.org/0000-0001-2345-6789",
-            "type": "orcid"
-        },
-        "mbox": "name@email.com"
-    },
-    "contributor": null,
-    "cost": null,
-    "created": "2025-02-10T13:49:29",
-    "dataset": [
-        {
-            "data_quality_assurance": null,
-            "dataset_id": {
-                "identifier": "https://doi.org/10.25504/FAIRsharing.r3vtvx",
-                "type": "doi"
+    "dmp": {
+        "title": "DMP Title",
+        "contact": {
+            "name": "name",
+            "contact_id": {
+                "identifier": "https://orcid.org/0000-0001-2345-6789",
+                "type": "orcid"
             },
-            "description": "Dataset description example",
-            "distribution": null,
-            "issued": null,
-            "keyword": null,
-            "language": null,
-            "metadata": null,
-            "personal_data": "no",
-            "preservation_statement": null,
-            "security_and_privacy": null,
-            "sensitive_data": "no",
-            "technical_resource": [
-                {
-                    "description": null,
-                    "name": "Technical resource"
-                }
-            ],
-            "title": "Dataset title",
-            "type": null
-        }
-    ],
-    "description": null,
-    "dmp_id": null,
-    "ethical_issues_description": null,
-    "ethical_issues_exist": "no",
-    "ethical_issues_report": null,
-    "language": "eng",
-    "modified": "2025-02-10T13:49:29",
-    "project": null
+            "mbox": "name@email.com"
+        },
+        "contributor": null,
+        "cost": null,
+        "created": "2025-02-12T08:15:03",
+        "dataset": [
+            {
+                "data_quality_assurance": null,
+                "dataset_id": {
+                    "identifier": "https://doi.org/10.25504/FAIRsharing.r3vtvx",
+                    "type": "doi"
+                },
+                "description": "Dataset description example",
+                "distribution": null,
+                "issued": null,
+                "keyword": null,
+                "language": null,
+                "metadata": null,
+                "personal_data": "no",
+                "preservation_statement": null,
+                "security_and_privacy": null,
+                "sensitive_data": "no",
+                "technical_resource": [
+                    {
+                        "description": null,
+                        "name": "Technical resource"
+                    }
+                ],
+                "title": "Dataset title",
+                "type": null
+            }
+        ],
+        "description": null,
+        "dmp_id": {
+            "identifier": "https://n2t.net/ark:/123456/xyz123?info",
+            "type": "ark"
+        },
+        "ethical_issues_description": null,
+        "ethical_issues_exist": "no",
+        "ethical_issues_report": null,
+        "language": "eng",
+        "modified": "2025-02-12T08:15:03",
+        "project": null
+    }
 }
 ```
 
