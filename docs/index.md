@@ -11,3 +11,20 @@ To begin using `madmpy`, check out the [Installation](quickstart.md#installation
 - Ready to code? → [Quickstart](quickstart.md)
 - Found a bug or want to contact? → [alberto.ballesterosr@uah.es](mailto:alberto.ballesterosr@uah.es?subject=madmpy), [msicilia@uah.es](mailto:msicilia@uah.es?subject=madmpy)
 - Read the source? → [Github](https://github.com/msicilia/madmpy)
+
+## Citation
+
+If you use `madmpy` in your research, please cite the [paper](https://doi.org/10.1016/j.softx.2025.102215) describing it:
+
+```bibtex
+@article{ballesteros2025madmpy,
+  title   = {{madmpy}: A Python library for creating and validating Data Management Plans},
+  author  = {Alberto Ballesteros-Rodríguez and Miguel-Ángel Sicilia and Elena García-Barriocanal},
+  journal = {SoftwareX},
+  volume  = {31},
+  pages   = {102215},
+  year    = {2025},
+  issn    = {2352-7110},
+  doi     = {10.1016/j.softx.2025.102215},
+}
+```
