@@ -10,20 +10,16 @@ dependencies = [
 ]
 
 [dependency-groups]
-# Declared so that `uv run pytest` resolves to this project rather than to whatever
-# pytest is on PATH, which would import a separately installed madmpy.
+# So that `uv run pytest` resolves to this project, not to whatever pytest is on PATH.
 dev = ["pytest>=8"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-# The source distribution ships an explicit list rather than whatever the working tree
-# happens to hold. A default sdist sweeps in everything git does not ignore, which here
-# meant local notes, a clone of the RDA's own repository and unrelated PDFs.
 [tool.hatch.build.targets.sdist]
-# The leading slashes anchor each pattern to the project root: unanchored, "docs" and
-# "README.md" would also match those names inside any nested directory.
+# An explicit list: a default sdist sweeps in everything git does not ignore. The
+# leading slashes anchor each pattern to the project root.
 include = [
     "/src/madmpy",
     "/data",
