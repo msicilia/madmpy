@@ -1,0 +1,251 @@
+{
+    "dmp": {
+        "title": "DMP exercising every field schema 1.2 added",
+        "description": "Not an RDA example. Written for madmpy because the ten official examples use only one of the eleven fields introduced in schema 1.2, so nothing else in them is covered by a test. Every identifier is either published by the schema as its own example or is an obvious placeholder under example.org; no real-world identifier is paired with an invented name.",
+        "language": "eng",
+        "created": "2026-09-05T09:12:44.081Z",
+        "modified": "2026-09-05T09:12:44.081Z",
+        "ethical_issues_exist": "yes",
+        "ethical_issues_description": "The recordings identify their speakers by voice.",
+        "ethical_issues_report": "https://example.org/ethics/report-2026-04.pdf",
+        "dmp_id": {
+            "identifier": "https://doi.org/10.1371/journal.pcbi.1006750",
+            "type": "doi"
+        },
+        "alternate_identifier": [
+            {
+                "identifier": "DMP-2026-0031",
+                "type": "internal reference"
+            }
+        ],
+        "related_identifier": [
+            {
+                "identifier": "https://example.org/dmp/2024/machine-readable",
+                "type": "url",
+                "relation_type": "IsNewVersionOf",
+                "resource_type": "OutputManagementPlan"
+            }
+        ],
+        "contact": {
+            "name": "Charlie Chaplin",
+            "mbox": "cc@example.com",
+            "contact_id": [
+                {
+                    "identifier": "https://example.org/person/charlie-chaplin",
+                    "type": "other"
+                },
+                {
+                    "identifier": "https://example.org/openid/charlie-chaplin",
+                    "type": "openid"
+                }
+            ],
+            "affiliation": [
+                {
+                    "name": "Some University",
+                    "affiliation_id": {
+                        "identifier": "03yrm5c26",
+                        "type": "ror"
+                    }
+                }
+            ]
+        },
+        "contributor": [
+            {
+                "name": "John Smith",
+                "mbox": "john@smith.com",
+                "role": [
+                    "DataManager"
+                ],
+                "contributor_id": {
+                    "identifier": "https://example.org/person/john-smith",
+                    "type": "other"
+                },
+                "affiliation": [
+                    {
+                        "name": "Some University",
+                        "affiliation_id": {
+                            "identifier": "03yrm5c26",
+                            "type": "ror"
+                        }
+                    }
+                ]
+            }
+        ],
+        "cost": [
+            {
+                "title": "Storage and Backup",
+                "description": "Costs for maintaining the collection for ten years.",
+                "value": 1240.5,
+                "currency_code": "EUR"
+            }
+        ],
+        "project": [
+            {
+                "title": "Our New Project",
+                "description": "The project this plan belongs to.",
+                "start": "2026-01-01",
+                "end": "2028-12-31",
+                "project_id": [
+                    {
+                        "identifier": "https://example.org/project/1428966",
+                        "type": "url"
+                    },
+                    {
+                        "identifier": "https://example.org/pdb/rest/project/v3/1428966",
+                        "type": "HTTP-PDB"
+                    }
+                ],
+                "funding": [
+                    {
+                        "funder_id": {
+                            "identifier": "501100002428",
+                            "type": "fundref"
+                        },
+                        "grant_id": {
+                            "identifier": "776242",
+                            "type": "other"
+                        },
+                        "funding_status": "granted"
+                    }
+                ]
+            }
+        ],
+        "dataset": [
+            {
+                "title": "Field recordings, 2026 season",
+                "description": "A dataset reused by this project.",
+                "type": "sound",
+                "dataset_id": {
+                    "identifier": "11353/10.923628",
+                    "type": "handle"
+                },
+                "personal_data": "yes",
+                "sensitive_data": "no",
+                "issued": "2019-06-30",
+                "language": "eng",
+                "keyword": [
+                    "bioacoustics",
+                    "field recording"
+                ],
+                "is_reused": true,
+                "rights": "This dataset incorporates third-party materials that are subject to additional rights and restrictions. Users must obtain permission from the original rights holders before reuse.",
+                "preservation_statement": "Kept for ten years after the project ends.",
+                "data_quality_assurance": [
+                    "Each recording is checked against its field notes."
+                ],
+                "creator": [
+                    {
+                        "name": "John Doe",
+                        "mbox": "john.doe@example.com",
+                        "creator_id": {
+                            "identifier": "0000-0003-0644-4174",
+                            "type": "orcid"
+                        },
+                        "affiliation": [
+                            {
+                                "name": "Some University",
+                                "affiliation_id": {
+                                    "identifier": "03yrm5c26",
+                                    "type": "ror"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "alternate_identifier": [
+                    {
+                        "identifier": "E-GEOD-34814",
+                        "type": "accession number"
+                    }
+                ],
+                "related_identifier": [
+                    {
+                        "identifier": "http://www.ddialliance.org/Specification/DDI-Lifecycle/3.1/XMLSchema/instance.xsd",
+                        "type": "url",
+                        "relation_type": "HasMetadata",
+                        "resource_type": "Model",
+                        "metadata_scheme": "DDI-L",
+                        "scheme_type": "XSD",
+                        "scheme_uri": "http://www.ddialliance.org/Specification/DDI-Lifecycle/3.1/XMLSchema/instance.xsd"
+                    }
+                ],
+                "metadata": [
+                    {
+                        "language": "eng",
+                        "description": "Dublin Core terms, plus the local extension.",
+                        "metadata_standard_id": [
+                            {
+                                "identifier": "http://www.dublincore.org/specifications/dublin-core/dcmi-terms/",
+                                "type": "url"
+                            },
+                            {
+                                "identifier": "local-extension-v3",
+                                "type": "other"
+                            }
+                        ]
+                    }
+                ],
+                "security_and_privacy": [
+                    {
+                        "title": "Server security",
+                        "description": "Server is kept in a locked room."
+                    }
+                ],
+                "technical_resource": [
+                    {
+                        "name": "Recorder array",
+                        "description": "The recorders used in the field.",
+                        "technical_resource_id": [
+                            {
+                                "identifier": "https://example.org/resource",
+                                "type": "url"
+                            }
+                        ]
+                    }
+                ],
+                "distribution": [
+                    {
+                        "title": "Full-quality recordings",
+                        "description": "The recordings before any resampling.",
+                        "data_access": "shared",
+                        "access_url": "http://some.repo",
+                        "download_url": "https://example.org/download/recordings.zip",
+                        "available_until": "2036-06-30",
+                        "issued": "2019-06-30",
+                        "byte_size": 690000000,
+                        "format": [
+                            "audio/flac"
+                        ],
+                        "license": [
+                            {
+                                "license_ref": "https://creativecommons.org/licenses/by/4.0/",
+                                "start_date": "2019-06-30"
+                            }
+                        ],
+                        "host": {
+                            "title": "Super Repository",
+                            "url": "https://super-repository.org",
+                            "description": "Repository hosted by the university.",
+                            "availability": "99.5",
+                            "backup_frequency": "weekly",
+                            "backup_type": "tapes",
+                            "certified_with": "coretrustseal",
+                            "geo_location": "AT",
+                            "storage_type": "Repository",
+                            "support_versioning": "yes",
+                            "pid_system": [
+                                "doi"
+                            ],
+                            "host_id": [
+                                {
+                                    "identifier": "http://example.org/repo",
+                                    "type": "url"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}

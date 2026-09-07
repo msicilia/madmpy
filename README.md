@@ -24,17 +24,17 @@ To load the DMP module:
 ```python
 >>> import madmpy
 >>> dmp_module = madmpy.load()
-Loaded madmpy with RDA-DMP specification v1.1
+Loaded madmpy with RDA-DMP specification v1.2
 ```
 
-To use an older version of the RDA-DMP Common Standard:
+To use an older version of the RDA-DMP Common Standard — `1.1` and `1.0` both ship:
 
 ```python
 >>> import madmpy
->>> VERSION = "1.0"
+>>> VERSION = "1.1"
 >>> madmpy.set_version(VERSION)
 >>> dmp_module = madmpy.load()
-Loaded madmpy with RDA-DMP specification v1.0
+Loaded madmpy with RDA-DMP specification v1.1
 ```
 
 ### Validate a DMP File
@@ -44,6 +44,9 @@ To validate a DMP file in JSON format:
 >>> madmpy.validate_DMP("path_DMP_JSON")
 DMP validated!
 ```
+
+Returns `True` if the plan is valid and `False` otherwise, including when the file is
+missing or malformed.
 
 
 ### Create a DMP
@@ -89,8 +92,8 @@ DMP = dmp_module.DMP(
     contact=contact,
     dmp_id=dmp_id,
     ethical_issues_exist=dmp_module.YesNoUnknown.NO,
-    created=datetime.datetime.now().replace(microsecond=0),
-    modified=datetime.datetime.now().replace(microsecond=0),
+    created=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0),
+    modified=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0),
 )
 ```
 
@@ -101,61 +104,46 @@ To generate a JSON representation of the DMP object:
 madmpy.export_DMP_json(DMP)
 ```
 
-This will output a structured JSON-formatted representation of the DMP:
+Returns a dictionary you can write with `json.dump(..., indent=4)`, holding the
+structure the standard expects:
 
 ```json
 {
     "dmp": {
         "title": "DMP Title",
         "contact": {
-            "name": "name",
             "contact_id": {
                 "identifier": "https://orcid.org/0000-0001-2345-6789",
                 "type": "orcid"
             },
-            "mbox": "name@email.com"
+            "mbox": "name@email.com",
+            "name": "name"
         },
-        "contributor": null,
-        "cost": null,
-        "created": "2025-02-12T08:15:03",
+        "created": "2025-02-12T08:15:03Z",
         "dataset": [
             {
-                "data_quality_assurance": null,
                 "dataset_id": {
                     "identifier": "https://doi.org/10.25504/FAIRsharing.r3vtvx",
                     "type": "doi"
                 },
                 "description": "Dataset description example",
-                "distribution": null,
-                "issued": null,
-                "keyword": null,
-                "language": null,
-                "metadata": null,
                 "personal_data": "no",
-                "preservation_statement": null,
-                "security_and_privacy": null,
                 "sensitive_data": "no",
                 "technical_resource": [
                     {
-                        "description": null,
                         "name": "Technical resource"
                     }
                 ],
-                "title": "Dataset title",
-                "type": null
+                "title": "Dataset title"
             }
         ],
-        "description": null,
         "dmp_id": {
-            "identifier": "https://n2t.net/ark:/123456/xyz123?info",
-            "type": "ark"
+            "identifier": "https://doi.org/10.15497/rda00039",
+            "type": "doi"
         },
-        "ethical_issues_description": null,
         "ethical_issues_exist": "no",
-        "ethical_issues_report": null,
         "language": "eng",
-        "modified": "2025-02-12T08:15:03",
-        "project": null
+        "modified": "2025-02-12T08:15:03Z"
     }
 }
 ```

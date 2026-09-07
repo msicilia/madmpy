@@ -1,4 +1,3 @@
-# from .dmp import DMP, Project
 from .dmp import DMP
 
 VERSION = "1.1"

@@ -4,8 +4,9 @@ nav:
     - Intro: index.md
     - Quickstart: quickstart.md
     - Release Notes: release_notes.md
-  - "API REFERENCE":  
-    - v1.1: dmp.md
+  - "API REFERENCE":
+    - v1.2: dmp1_2.md
+    - v1.1: dmp1_1.md
     - v1.0: dmp1_0.md
     
 theme:

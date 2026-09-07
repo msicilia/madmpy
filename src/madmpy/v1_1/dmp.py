@@ -1,6 +1,6 @@
-from pydantic import BaseModel, AfterValidator, AnyUrl
+from pydantic import BaseModel, ConfigDict, AfterValidator, AnyUrl, ValidationError
 from enum import Enum
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from typing_extensions import Annotated
 import re
@@ -8,6 +8,10 @@ import re
 from ..languages import LanguageEnum
 from ..currency_code import CurrencyCode
 from ..country_code import CountryCode
+
+# Schema 1.1 writes additionalProperties: false at the top level: "dmp" is the only key
+# a file may carry. Inside the plan, extra keys stay legal — see extra="allow" below.
+ALLOWS_EXTRA_ROOT_KEYS = False
 
 def extract_identifier(url, id_type):
     """
@@ -18,14 +22,24 @@ def extract_identifier(url, id_type):
         id_type (str): The type of identifier to extract. Supported types are "doi", "orcid", "ark", and "handle".
 
     Returns:
-        str or None: The extracted identifier if found, otherwise None.
+        str or None: The extracted identifier if found, otherwise None. Handles are
+            returned bare, stripped of the resolver URL when they carry one.
     """
     patterns = {
         "doi": r"10\.\d{4,9}/[-._;()/:A-Z0-9]+$",
         "orcid": r"\d{4}-\d{4}-\d{4}-\d{3}[0-9X]{1}$",
-        "ark": r"ark:/[-a-zA-Z0-9@:%_\\+.~#?&//=]+$",
-        "handle": r"\d+\.\d+/[a-zA-Z0-9._;()/:@&=+$,-]+$"
+        "ark": r"ark:\/?\S+$",
     }
+
+    # A handle's local name may contain slashes (RFC 3651, sec. 2), so it cannot be
+    # scraped: strip the resolver or DSpace prefix instead, or assume it is already bare.
+    if id_type == "handle":
+        for resolver in (r"^https?://(?:hdl\.)?handle\.net/(.+)$",
+                         r"^https?://\S*?/handle/(.+)$"):
+            match = re.match(resolver, url, re.IGNORECASE)
+            if match:
+                return match.group(1)
+        return url
     
     if id_type not in patterns:
         return url
@@ -52,7 +66,7 @@ def validate_id(value):
     
     identifier = extract_identifier(str(value.identifier).strip(), value.type)
     if not identifier:
-        raise ValueError(f"No valid {value.type} identifier found in URL.")
+        raise ValueError(f"No valid {value.type.value} identifier found in URL.")
     
     match value.type:
         case "doi":
@@ -64,20 +78,79 @@ def validate_id(value):
             if not re.match(orcid_pattern, identifier):
                 raise ValueError("Invalid ORCID format")
         case "ark":
-            ark_pattern = r"^ark:\/\d{5,10}\/[\w\-.]+(\?[^\s#]+|#[^\s]+)?$"
+            # Both labels stay valid: current "ark:NAAN/" and legacy "ark:/NAAN/" (ARK
+            # spec 2.2). NAANs are betanumeric (2.3); the name takes subparts, variants
+            # and inflections (2.5, 5.2).
+            ark_pattern = r"^ark:\/?[bcdfghjkmnpqrstvwxz0-9]+\/[A-Za-z0-9=~*+@_$.\/-]+(\?\S*)?$"
             if not re.match(ark_pattern, identifier):
                 raise ValueError("Invalid ARK format")
         case "handle":
-            handle_pattern = r"\d{1,5}(\.\d+)?\/[\w\-.]+$"
+            # The global registry only assigns numeric prefixes. RFC 3651 allows
+            # non-numeric ones; rejecting those is deliberate.
+            handle_pattern = r"^\d+(\.\d+)*\/\S+$"
             if not re.match(handle_pattern, identifier):
                 raise ValueError("Invalid Handle format")
-        case "other":
-            if not identifier:
-                raise ValueError("Identifier cannot be empty for 'other'")
+        case "url":
+            # Same notion of URL the models use for host.url and download_url.
+            try:
+                AnyUrl(identifier)
+            except ValidationError:
+                raise ValueError("Invalid URL format")
+        case "isni":
+            # 15 digits and a check character that may be X, optionally grouped
+            # (ISO 27729).
+            isni_pattern = r"^\d{4}[ -]?\d{4}[ -]?\d{4}[ -]?\d{3}[\dX]$"
+            if not re.match(isni_pattern, identifier):
+                raise ValueError("Invalid ISNI format")
+        case "fundref" | "openid" | "other":
+            # No format is pinned for these, so the emptiness check above is all that
+            # can be asserted.
+            pass
         case _:
             raise ValueError("Unsupported identifier type")
     
     return value
+
+def validate_email(value):
+    """
+    Validates an email address.
+
+    A pragmatic check for `format: email`, not an RFC 5322 parser. A domain with no dot
+    is rejected too.
+
+    Args:
+        value (str): The address to validate.
+
+    Raises:
+        ValueError: If the value does not look like an email address.
+
+    Returns:
+        str: The validated address.
+    """
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", value):
+        raise ValueError("Invalid email format")
+
+    return value
+
+
+def validate_unique(value):
+    """
+    Rejects a list with repeated entries.
+
+    Args:
+        value (list): The list to check.
+
+    Raises:
+        ValueError: If any entry appears more than once.
+
+    Returns:
+        list: The validated list.
+    """
+    if len(value) != len(set(value)):
+        raise ValueError("Duplicate entries are not allowed")
+
+    return value
+
 
 class metadata_id_type(str, Enum):
     """
@@ -120,7 +193,13 @@ class contributor_id_type(str, Enum):
     OPENID = "openid"
     OTHER = "other"
 
-class ContactIdentifier(BaseModel):
+class _MaDMPModel(BaseModel):
+    """
+    Base for every model in this module.
+    """
+    model_config = ConfigDict(extra="allow")
+
+class ContactIdentifier(_MaDMPModel):
     """
     Represents a unique identifier for the contact person in a DMP.
 
@@ -131,18 +210,18 @@ class ContactIdentifier(BaseModel):
     identifier: str
     type: contact_id_type
 
-class Contact(BaseModel):
+class Contact(_MaDMPModel):
     """
     Represents the main contact person for a DMP.
     
     Args:
         name (str): The name of the contact person. Example: "Charlie Chaplin".
         contact_id (ContactIdentifier): The unique identifier for the contact, including an identifier value and type.
-        mbox (str): The contact person's email address. Example: "cc@example.com".
+        mbox (str): The contact person's email address, validated as such. Example: "cc@example.com".
     """
     name: str
-    contact_id: ContactIdentifier
-    mbox: str
+    contact_id: Annotated[ContactIdentifier, AfterValidator(validate_id)]
+    mbox: Annotated[str, AfterValidator(validate_email)]
 
 class dmp_dataset_id_type(str, Enum):
     """
@@ -294,7 +373,7 @@ class FundingStatus(str, Enum):
     GRANTED = "granted"
     REJECTED = "rejected"
 
-class ContributorIdentifier(BaseModel):
+class ContributorIdentifier(_MaDMPModel):
     """
     Represents a unique identifier for a contributor.
 
@@ -305,22 +384,22 @@ class ContributorIdentifier(BaseModel):
     identifier: str
     type: contributor_id_type
 
-class Contributor(BaseModel):
+class Contributor(_MaDMPModel):
     """
     Represents a contributor in a DMP.
 
     Args:
         contributor_id (ContributorIdentifier): The unique identifier for the contributor.
-        mbox (str): The email address of the contributor (optional).
+        mbox (str): The email address of the contributor, validated as such (optional).
         name (str): The name of the contributor. Example: "John Smith".
-        role (List[str]): The roles of the contributor. Example: ["Data Steward"].
+        role (List[str]): The roles of the contributor, which may not repeat. Example: ["Data Steward"].
     """
-    contributor_id: ContributorIdentifier
-    mbox: Optional[str] = None
+    contributor_id: Annotated[ContributorIdentifier, AfterValidator(validate_id)]
+    mbox: Optional[Annotated[str, AfterValidator(validate_email)]] = None
     name: str
-    role: list[str]
+    role: Annotated[list[str], AfterValidator(validate_unique)]
 
-class Cost(BaseModel):
+class Cost(_MaDMPModel):
     """
     Represents a cost entry in a DMP.
     
@@ -335,7 +414,7 @@ class Cost(BaseModel):
     title: str
     value: Optional[float] = None
 
-class Host(BaseModel):
+class Host(_MaDMPModel):
     """
     Represents a dataset distribution host in a DMP. Information about the QoS provided by the infrastructure (e.g., repository) where data is stored.
     
@@ -364,26 +443,26 @@ class Host(BaseModel):
     title: str
     url: AnyUrl
     
-class License (BaseModel):
+class License(_MaDMPModel):
     """
     Represents a license applied to a dataset distribution.
     
     Args:
         license_ref (AnyUrl): URL link to the license document. Example: "https://creativecommons.org/licenses/by/4.0/".
-        start_date (datetime): Date when the license starts being applicable. If set in the future, it indicates an embargo period.
+        start_date (date): Date when the license starts being applicable. If set in the future, it indicates an embargo period.
     """
     license_ref: AnyUrl
-    start_date: datetime
+    start_date: date
 
-class Distribution(BaseModel):
+class Distribution(_MaDMPModel):
     """
     Represents a dataset distribution, providing technical information on a specific instance of data.
     
     Args:
-        access_url (AnyUrl): URL of the resource that gives access to a distribution of the dataset. Example: "http://some.repo".
-        available_until (datetime): Date until the distribution is available.
+        access_url (str): URL of the resource that gives access to a distribution of the dataset. Example: "http://some.repo".
+        available_until (date): Date until the distribution is available.
         byte_size (int): Size of the dataset distribution in bytes.
-        data_access (DataAccess): Access mode for the dataset (open, shared or closed).
+        data_access (DataAccess): Access mode for the dataset (open, shared or closed). Required.
         description (str): Description of the dataset distribution. Example: "Best quality data before resizing".
         download_url (AnyUrl): URL to directly download the dataset.
         format (List[str]): Format of the dataset distribution. Example: ["image/tiff"].
@@ -391,18 +470,21 @@ class Distribution(BaseModel):
         license (List[License]): Licenses applied to the dataset distribution.
         title (str): Title of the dataset distribution.
     """
-    access_url: Optional[AnyUrl] = None
-    available_until: Optional[datetime] = None
+    # access_url is the one URL-ish field the schema declares as a plain string, with no
+    # format in any version. Modelling it as AnyUrl would reject documents the standard
+    # accepts, so the recommendation stays in the description above.
+    access_url: Optional[str] = None
+    available_until: Optional[date] = None
     byte_size: Optional[int] = None
-    data_access: Optional[DataAccess] = None
+    data_access: DataAccess
     description: Optional[str] = None
     download_url: Optional[AnyUrl] = None
     format: Optional[list[str]] = None
     host: Optional[Host] = None
-    license: Optional[list[License]]
+    license: Optional[list[License]] = None
     title: str
 
-class MetadataIdentifier(BaseModel):
+class MetadataIdentifier(_MaDMPModel):
     """
     Represents an identifier for a metadata standard used in a dataset.
     
@@ -413,7 +495,7 @@ class MetadataIdentifier(BaseModel):
     identifier: str
     type: metadata_id_type
 
-class Metadata(BaseModel):
+class Metadata(_MaDMPModel):
     """
     Represents metadata standards used in a dataset.
     
@@ -424,9 +506,9 @@ class Metadata(BaseModel):
     """
     description: Optional[str] = None
     language: LanguageEnum
-    metadata_standard_id: MetadataIdentifier
+    metadata_standard_id: Annotated[MetadataIdentifier, AfterValidator(validate_id)]
 
-class SecurityPrivacy(BaseModel):
+class SecurityPrivacy(_MaDMPModel):
     """
     Represents security and privacy measures applied to the dataset.
     
@@ -437,7 +519,7 @@ class SecurityPrivacy(BaseModel):
     description: Optional[str] = None
     title: str
 
-class TechnicalResource(BaseModel):
+class TechnicalResource(_MaDMPModel):
     """
     Represents technical resources needed to implement a DMP.
     
@@ -448,7 +530,7 @@ class TechnicalResource(BaseModel):
     description: Optional[str] = None
     name: str
 
-class DatasetIdentifier(BaseModel):
+class DatasetIdentifier(_MaDMPModel):
     """
     Represents an identifier for a dataset.
     
@@ -460,7 +542,7 @@ class DatasetIdentifier(BaseModel):
     type: dmp_dataset_id_type
 
 
-class Dataset(BaseModel):
+class Dataset(_MaDMPModel):
     """
     Represents a dataset within a DMP.
     
@@ -469,7 +551,7 @@ class Dataset(BaseModel):
         dataset_id (DatasetIdentifier): Identifier for the dataset.
         description (str): Description of the dataset.
         distribution (List[Distribution]): Technical distribution details.
-        issued (datetime): Date of issue of the dataset.
+        issued (date): Date of issue of the dataset.
         keyword (List[str]): Keywords describing the dataset.
         language (LanguageEnum): Language of the dataset.
         metadata (List[Metadata]): Metadata standards used.
@@ -485,7 +567,7 @@ class Dataset(BaseModel):
     dataset_id: Annotated[DatasetIdentifier, AfterValidator(validate_id)]
     description: Optional[str] = None
     distribution: Optional[list[Distribution]] = None
-    issued: Optional[datetime] = None
+    issued: Optional[date] = None
     keyword: Optional[list[str]] = None
     language: Optional[LanguageEnum] = None
     metadata: Optional[list[Metadata]] = None
@@ -497,7 +579,7 @@ class Dataset(BaseModel):
     title: str
     type: Optional[str] = None
 
-class DMPIdentifier(BaseModel):
+class DMPIdentifier(_MaDMPModel):
     """
     Represents an identifier for the  DMP itself.
     
@@ -508,7 +590,7 @@ class DMPIdentifier(BaseModel):
     identifier: str
     type: dmp_dataset_id_type
 
-class FundingIdentifier(BaseModel):
+class FundingIdentifier(_MaDMPModel):
     """
     Represents the identifier of a funder.
 
@@ -519,7 +601,7 @@ class FundingIdentifier(BaseModel):
     identifier: str
     type: funding_id_type
 
-class GrantIdentifier(BaseModel):
+class GrantIdentifier(_MaDMPModel):
     """
     Represents the identifier of a funding grant.
 
@@ -530,7 +612,7 @@ class GrantIdentifier(BaseModel):
     identifier: str
     type: grant_id_type
 
-class Funding(BaseModel):
+class Funding(_MaDMPModel):
     """
     Represents the funding details associated with a project.
     
@@ -539,33 +621,33 @@ class Funding(BaseModel):
         funding_status (FundingStatus): The status of the funding application. Example: "granted".
         grant_id (GrantIdentifier): The identifier of the grant associated with the project.
     """
-    funder_id: FundingIdentifier
+    funder_id: Annotated[FundingIdentifier, AfterValidator(validate_id)]
     funding_status: Optional[FundingStatus] = None
-    grant_id: Optional[GrantIdentifier] = None
+    grant_id: Optional[Annotated[GrantIdentifier, AfterValidator(validate_id)]] = None
 
-class Project(BaseModel):
+class Project(_MaDMPModel):
     """
     Represents a project related to a DMP.
     
     Args:
         title (str): The title of the project. Example: "Our New Project".
         description (str): A description of the project.
-        start (datetime): The start date of the project.
-        end (datetime): The end date of the project.
+        start (date): The start date of the project.
+        end (date): The end date of the project.
         funding (List[Funding]): A list of funding sources related to the project.
     """
     title: str
     description: Optional[str] = None
-    start : Optional[datetime] = None
-    end : Optional[datetime] = None
+    start : Optional[date] = None
+    end : Optional[date] = None
     funding : Optional[list[Funding]] = None
 
-class DMP(BaseModel):
+class DMP(_MaDMPModel):
     """
     Represents a DMP.
 
     Args:
-        title (str): The title of the DMFieldP.
+        title (str): The title of the DMP.
         project (Project): The project associated with this DMP.
         created (datetime): The timestamp when the DMP was created.
         modified (datetime): The timestamp when the DMP was last modified.
@@ -579,55 +661,12 @@ class DMP(BaseModel):
     contributor: Optional[list[Contributor]] = None
     cost: Optional[list[Cost]] = None
     created: datetime
-    dataset: list[Dataset]    
+    dataset: list[Dataset]
     description: Optional[str] = None
-    dmp_id: Annotated[DMPIdentifier, AfterValidator(validate_id)] # \
-    #    = Field(default = DMPIdentifier(identifier="change-me", type="other"))
+    dmp_id: Annotated[DMPIdentifier, AfterValidator(validate_id)]
     ethical_issues_description: Optional[str] = None
-    ethical_issues_exist: YesNoUnknown = None
+    ethical_issues_exist: YesNoUnknown
     ethical_issues_report: Optional[AnyUrl] = None
     language: LanguageEnum
     modified: datetime
     project: Optional[list[Project]] = None
-
-    # contact: Contact = Field(default=Contact(name="change-me", 
-    #                                  contact_id=ContactIdentifier("changeme", "other"), 
-    #                                  mbox="change-me"))
-    # created: datetime = Field(default=datetime.now().replace(microsecond=0).isoformat())
-    # contributor: list[Contributor] = Field(
-    #                                     default=[
-    #                                         Contributor(
-    #                                             contributor_id=ContributorIdentifier(identifier="other", type="other"), 
-    #                                             name="Contributor", 
-    #                                             role=["role"]
-    #                                         )
-    #                                     ]
-    #                                 )
-    # dataset: list[Dataset] = Field(
-    #                             default=[
-    #                                 Dataset(
-    #                                     dataset_id=DatasetIdentifier(identifier="doi", type="doi"),
-    #                                     description="change-me",
-    #                                     personal_data="no",
-    #                                     sensitive_data="no",
-    #                                     technical_resource=[TechnicalResource(name="resource")],
-    #                                     title="Dataset"
-    #                                     )
-    #                             ], min_length=1
-    #                         )
-    # project: list[Project] = Field(default=[
-    #                             Project(
-    #                                 title="Project Title",
-    #                                 description="Project's description",
-    #                                 start=datetime.now().replace(microsecond=0).isoformat(),
-    #                                 end=datetime.now().replace(microsecond=0).isoformat(),
-    #                                 funding=[
-    #                                             Funding(
-    #                                                 funder_id=FundingIdentifier(identifier="501100002428", type="fundref"),
-    #                                                 funding_status=FundingStatus.GRANTED,
-    #                                                 grant_id=GrantIdentifier(identifier="776242", type="other")
-    #                                             )
-    #                                         ]
-    #                                 )   
-    #                             ]
-    #                         )
